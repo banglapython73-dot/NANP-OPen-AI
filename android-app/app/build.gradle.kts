@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "com.example.superai"
-    compileSdk = 32 // Downgraded to Android 12 as requested
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.superai"
         minSdk = 24
-        targetSdk = 32 // Downgraded to Android 12 as requested
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
