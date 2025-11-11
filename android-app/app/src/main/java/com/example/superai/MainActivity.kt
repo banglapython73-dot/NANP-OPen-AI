@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.ktor.client.HttpClient
-import io.ktor.client.engine.cio.CIO
+import io.ktor.client.engine.okhttp.OkHttp // Import OkHttp engine
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -41,23 +41,38 @@ import java.util.*
 data class BackendRequest(val prompt: String, val mode: String, val custom_api_key: String? = null)
 
 @Serializable
+data class ResponsePayload(
+    val text: String,
+    val image_url: String? = null
+)
+
+@Serializable
 data class BackendResponse(
     val status: String,
-    val response: String,
+    val response: ResponsePayload,
     val model_used: String,
     val diagnostic_report: String
 )
 
+// --- Chat Message Data Class ---
+data class ChatMessage(
+    val text: String,
+    val isUser: Boolean,
+    val imageUrl: String? = null,
+    val modelUsed: String? = null,
+    val diagnosticReport: String? = null
+)
+
 // --- ViewModel ---
 class MainViewModel(private val tts: TextToSpeech) : ViewModel() {
-    private val _messages = mutableStateListOf<Pair<String, Boolean>>()
-    val messages: List<Pair<String, Boolean>> = _messages
+    private val _messages = mutableStateListOf<ChatMessage>()
+    val messages: List<ChatMessage> = _messages
     private val _isLoading = mutableStateOf(false)
     val isLoading: State<Boolean> = _isLoading
     private val _currentAiMode = mutableStateOf("powerful") // "powerful" or "own_system"
     val currentAiMode: State<String> = _currentAiMode
 
-    private val client = HttpClient(CIO) {
+    private val client = HttpClient(OkHttp) { // Use the OkHttp engine
         install(ContentNegotiation) {
             json(Json {
                 isLenient = true
@@ -74,7 +89,7 @@ class MainViewModel(private val tts: TextToSpeech) : ViewModel() {
     fun sendCommand(command: String) {
         viewModelScope.launch {
             _isLoading.value = true
-            _messages.add(command to true) // Add user message to chat
+            _messages.add(ChatMessage(text = command, isUser = true)) // Add user message
             try {
                 val requestBody = BackendRequest(
                     prompt = command,
@@ -87,14 +102,21 @@ class MainViewModel(private val tts: TextToSpeech) : ViewModel() {
                 }.bodyAsText()
 
                 val backendResponse = Json.decodeFromString<BackendResponse>(responseString)
+                val payload = backendResponse.response
 
-                val responseText = backendResponse.response
-                _messages.add(responseText to false) // Add AI response to chat
-                tts.speak(responseText, TextToSpeech.QUEUE_FLUSH, null, null)
+                val aiMessage = ChatMessage(
+                    text = payload.text,
+                    isUser = false,
+                    imageUrl = payload.image_url,
+                    modelUsed = backendResponse.model_used,
+                    diagnosticReport = backendResponse.diagnostic_report
+                )
+                _messages.add(aiMessage) // Add AI message
+                tts.speak(payload.text, TextToSpeech.QUEUE_FLUSH, null, null)
 
             } catch (e: Exception) {
                 val errorMsg = "Error: Could not connect to backend. ${e.message}"
-                _messages.add(errorMsg to false)
+                _messages.add(ChatMessage(text = errorMsg, isUser = false))
                 tts.speak(errorMsg, TextToSpeech.QUEUE_FLUSH, null, null)
             } finally {
                 _isLoading.value = false
@@ -197,9 +219,17 @@ fun SuperAIApp(viewModel: MainViewModel, onVoiceInput: () -> Unit) {
                 // Messages Display
                 LazyColumn(modifier = Modifier.weight(1f)) {
                     items(messages) { message ->
-                        MessageBubble(message = message.first, isUser = message.second)
+                        MessageBubble(message = message)
                     }
                 }
+
+                Spacer(Modifier.height(8.dp))
+
+                // "Sync to Drive" Button - Placeholder
+                Button(onClick = { /* TODO: Implement file sharing logic */ }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                    Text("Sync Archive to Drive")
+                }
+
 
                 Spacer(Modifier.height(8.dp))
 
@@ -235,21 +265,52 @@ fun SuperAIApp(viewModel: MainViewModel, onVoiceInput: () -> Unit) {
     }
 }
 
+import coil.compose.AsyncImage
+
 @Composable
-fun MessageBubble(message: String, isUser: Boolean) {
+fun MessageBubble(message: ChatMessage) {
+    var isExpanded by remember { mutableStateOf(false) }
+
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = if (isUser) Arrangement.End : Arrangement.Start
+        horizontalArrangement = if (message.isUser) Arrangement.End : Arrangement.Start
     ) {
         Surface(
             shape = MaterialTheme.shapes.medium,
             tonalElevation = 4.dp,
-            modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
+            modifier = Modifier
+                .padding(vertical = 4.dp, horizontal = 8.dp)
+                .widthIn(max = 300.dp)
         ) {
-            Text(
-                text = message,
-                modifier = Modifier.padding(16.dp)
-            )
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(text = message.text)
+
+                // Display image if URL exists
+                if (!message.imageUrl.isNullOrEmpty()) {
+                    Spacer(Modifier.height(8.dp))
+                    AsyncImage(
+                        model = message.imageUrl,
+                        contentDescription = "Relevant Image",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(150.dp)
+                    )
+                }
+
+                // Researcher Panel for AI messages
+                if (!message.isUser) {
+                    Spacer(Modifier.height(8.dp))
+                    TextButton(onClick = { isExpanded = !isExpanded }) {
+                        Text(if (isExpanded) "Hide Details" else "Show Details")
+                    }
+                    if (isExpanded) {
+                        Column {
+                            Text("Model Used: ${message.modelUsed ?: "N/A"}", style = MaterialTheme.typography.bodySmall)
+                            Text("Diagnostics: ${message.diagnosticReport ?: "N/A"}", style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
+                }
+            }
         }
     }
 }

@@ -80,13 +80,30 @@ class FactFinderAgent(Agent):
         print(f"AGENT '{self.name}': Task completed.")
         return report
 
-# --- Controller (Placeholder) ---
-# This will eventually be an AI that delegates tasks. For now, it's a simple function.
+# Import the powerful model's generation function directly to prevent circular imports
+from .powerful_model import generate_powerful_response
+
+# --- Controller ---
 def run_agent_swarm(prompt: str):
     """
-    A simple controller to run our agent(s).
+    Controller that runs the agent swarm and then uses a powerful AI to synthesize the results.
     """
-    # For now, we only have one agent, so we'll just run it directly.
+    # Step 1: Run the FactFinder agent to gather raw data
     fact_finder = FactFinderAgent()
-    result = fact_finder.run(prompt)
-    return result
+    raw_report = fact_finder.run(prompt)
+
+    print("AGENT SWARM: Raw report gathered. Now synthesizing with powerful model...")
+
+    # Step 2: Create a new prompt for the powerful AI to summarize the raw report
+    synthesis_prompt = (
+        f"Based on the following research report, please provide a clear and concise answer to the user's original question: '{prompt}'.\n\n"
+        f"--- Research Report ---\n"
+        f"{raw_report}\n"
+        f"--- End of Report ---\n\n"
+        f"Please synthesize the information into a final answer."
+    )
+
+    # Step 3: Call the powerful AI to generate the final, polished answer
+    final_answer = generate_powerful_response(synthesis_prompt)
+
+    return final_answer

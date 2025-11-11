@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "com.example.superai"
-    compileSdk = 34
+    compileSdk = 32 // Downgraded to Android 12 as requested
 
     defaultConfig {
         applicationId = "com.example.superai"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 32 // Downgraded to Android 12 as requested
         versionCode = 1
         versionName = "1.0"
 
@@ -66,9 +66,12 @@ dependencies {
 
     // Ktor for networking
     implementation("io.ktor:ktor-client-core:2.3.6")
-    implementation("io.ktor:ktor-client-cio:2.3.6")
+    implementation("io.ktor:ktor-client-okhttp:2.3.6") // Switched to OkHttp engine for better Android performance
     implementation("io.ktor:ktor-client-content-negotiation:2.3.6")
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.6")
+
+    // Coil for image loading
+    implementation("io.coil-kt:coil-compose:2.5.0")
 
     // Kotlinx Serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")

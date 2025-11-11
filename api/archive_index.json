@@ -1,0 +1,21 @@
+{
+    "entries": {
+        "entries": {},
+        "metadata": {},
+        "4e3c1b16aedab981fbff7eefea3915f481a1c876d3bb3a36cdc97e57ce7f182a": {
+            "prompt": "show me a graph of city populations",
+            "response": {
+                "text": "[Verified Fact] Data from Source for 'What is the definiti...' about 'What is the definition and core concept of 'show me a graph of city populations'?' | Data from Source for 'Why is 'show me a gr...' about 'Why is 'show me a graph of city populations' important or relevant?' | Data from Source for 'How does 'show me a ...' about 'How does 'show me a graph of city populations' work or what is its mechanism?' | Data from Source for 'When did 'show me a ...' about 'When did 'show me a graph of city populations' become significant or what is its history?' | Data from Source for 'What are the main co...' about 'What are the main components or types of 'show me a graph of city populations'?' | Data from Source for 'What are the primary...' about 'What are the primary criticisms or challenges related to 'show me a graph of city populations'?'",
+                "image_url": "/api/static/placeholder_graph.png"
+            },
+            "source": "Live Generation",
+            "keywords": [],
+            "timestamp": "2025-11-11T20:23:26.771060",
+            "access_count": 1
+        }
+    },
+    "metadata": {
+        "last_updated": "2025-11-11T20:23:26.771081",
+        "hash": "3b22e320f3bd820cce37ef8bba9324369be6d6fbc52b7a1c176d19d304d9afab"
+    }
+}
