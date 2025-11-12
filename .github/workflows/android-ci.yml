@@ -31,7 +31,7 @@ jobs:
     # It has been removed to speed up the workflow and reduce potential points of failure.
     - name: Build debug APK with detailed logging
       working-directory: ./android-app
-      run: ./gradlew assembleDebug --stacktrace --info --debug
+      run: ./gradlew assembleDebug --stacktrace --info --console=plain
 
     - name: Upload APK as artifact
       uses: actions/upload-artifact@v4
