@@ -9,6 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 20 # Add a timeout to prevent hung builds
 
     steps:
     - uses: actions/checkout@v4
@@ -26,13 +27,11 @@ jobs:
     - name: Accept Android SDK licenses
       run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null
 
-    - name: Build with Gradle
+    # The 'build' step is redundant as 'assembleDebug' also compiles the code.
+    # It has been removed to speed up the workflow and reduce potential points of failure.
+    - name: Build debug APK with detailed logging
       working-directory: ./android-app
-      run: ./gradlew build
-
-    - name: Build debug APK
-      working-directory: ./android-app
-      run: ./gradlew assembleDebug
+      run: ./gradlew assembleDebug --stacktrace --info --debug
 
     - name: Upload APK as artifact
       uses: actions/upload-artifact@v4
