@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+pip-selfcheck.json
+*.egg-info/
+dist/
+build/
+*.log
+*.err
+
+# Android
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+build/
+*/build/
+captures/
+.externalNativeBuild/
+.cxx/
+local.properties
+.gradle/
+*.iml
+*.keystore
+
+# IDE settings
+.idea/
+.vscode/
+
+# Old project artifacts to ignore
+n343-343/
+super-ai-system-/
+api_server.log
+server.log

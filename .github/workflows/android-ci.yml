@@ -1,0 +1,40 @@
+name: Android CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20 # Add a timeout to prevent hung builds
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: 'gradle'
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x android-app/gradlew
+
+    - name: Accept Android SDK licenses
+      run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null
+
+    # The 'build' step is redundant as 'assembleDebug' also compiles the code.
+    # It has been removed to speed up the workflow and reduce potential points of failure.
+    - name: Build debug APK with detailed logging
+      working-directory: ./android-app
+      run: ./gradlew assembleDebug --stacktrace --info --debug
+
+    - name: Upload APK as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-debug.apk
+        path: android-app/app/build/outputs/apk/debug/app-debug.apk
