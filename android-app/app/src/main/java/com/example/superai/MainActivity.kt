@@ -273,7 +273,7 @@ fun MessageBubble(message: ChatMessage) {
 
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = if (message.isUser) Arrangement.End : Arrangement.Start
+        horizontalArrangement = if (message.isUser) Arrangement.End else Arrangement.Start
     ) {
         Surface(
             shape = MaterialTheme.shapes.medium,
