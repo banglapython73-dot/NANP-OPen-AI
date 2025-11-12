@@ -1,0 +1,19 @@
+# Flask for the web server, with async support
+Flask[async]
+
+# Networking
+requests
+aiohttp # For asyncio-based HTTP requests in the dispatcher
+
+# Data Handling & Science
+wikipedia
+beautifulsoup4
+# For Academic Research Engine
+arxiv
+scholarly
+
+# For Data Visualization (even if simulated, good to have)
+# rpy2
+matplotlib
+seaborn
+pandas
